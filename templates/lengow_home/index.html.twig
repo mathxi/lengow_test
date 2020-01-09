@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <h1>Test Developpeur Fullstack</h1>
+        <h2>Le principe du test</h2>
+
+        <p>
+            Toutes les questions sont indépendantes, la difficulté est variable.
+            Pour chaque question, vous expliquerez dans un document annexe ce que vous avez fait
+            et évaluerez la difficulté de la question (facile, moyen, difficile).
+
+            Une fois le test complété, renvoyez nous l'archive du code ainsi que le document annexe.
+        </p>
+
+        <h3 class="uk-heading-divider">Pré-requis</h3>
+            <h4>Installation</h4>
+            <p>
+                <ul>
+                    <li>Serveur Web + PHP 7.2.x</li>
+                    <li>1 Base de donnée MySQL (db_name: lengow, db_user: lengow, db_password: lengow)</li>
+                </ul>
+            </p>
+            <p>
+                Si vous êtes à l'aise avec Docker, le docker-compose.yml est inclus dans le projet.
+                Le projet est configuré pour utiliser Docker, mais vous êtes libres de procéder autrement.
+            </p>
+
+            <h4>Ajout des données en base</h4>
+            <img src="{{ asset('/images/db.png') }}" alt="" />
+            <p>
+                Créer le schema et charger les données de test.
+                <ul>
+                    <li><code>bin/console doctrine:schema:create</code></li>
+                    <li><code>bin/console doctrine:fixtures:load</code></li>
+                </ul>
+            </p>
+
+        <h3 class="uk-heading-divider">Les questions</h3>
+            <ul>
+                <li>
+
+                    <strong>Question 1</strong> : <a href="{{ path('lengow_orders_last') }}">Liste des 20 dernières commandes <span class="uk-badge">Symfony, Doctrine</span></a>
+                    <p>
+                        Compléter la méthode <code>getLastNewOrders</code> du repository de l'entitée <code>Order</code> <br />
+                        pour que la page <code>/orders/last</code> retourne les 20 dernières commandes en statut "new".
+                    </p>
+
+                </li>
+                <li>
+                    <strong>Question 2</strong> : <a href="{{ path('lengow_orders_last_optimized') }}">Liste optimisée des 20 dernières commandes <span class="uk-badge">Symfony, Doctrine</span></a>
+                    <p>
+                        Compléter la méthode <code>getLastNewOrdersOptimized</code> du repository de l'entitée <code>Order</code> <br />
+                        pour que la page <code>/orders/last_optimized</code> retourne les 20 dernières commandes en statut "new" en ne générant qu'<strong>1 seule</strong> requête SQL.<br />
+                        Existe-t-il d'autres optimisations possibles ?
+                    </p>
+                </li>
+                <li>
+                    <strong>Question 3</strong> : <a href="{{ path('lengow_orders_new') }}">Enregistrer de nouvelles commandes <span class="uk-badge">PHP, Symfony, Doctrine</span></a>
+                    <p>
+                        Une API <code><a href="{{ path('lengow_api_orders_new') }}">/api/orders/new</a></code> vous fourni une liste de nouvelles commandes au format JSON. <br />
+                        Consommer cette API pour enregistrer <code>/orders/new</code> les nouvelles commandes en base de données, afficher le nombre total de commandes dans le statut 'new'.<br /> Effectuer le traitement directement dans le controleur.
+                    </p>
+                </li>
+                <li>
+                    <strong>Question 4</strong> : <a href="{{ path('lengow_orders_new_service') }}">Enregistrer des nouvelles commandes en utilisant les services <span class="uk-badge">PHP, Symfony, Doctrine</span></a>
+                    <p>
+                        Deux API renvoient une liste de nouvelles commandes, l'une en JSON <code><a href="{{ path('lengow_api_orders_new') }}">/api/orders/new</a></code> et
+                        l'autre en XML <code><a href="{{ path('lengow_api_orders_new_xml') }}">/api/orders/new_xml</a></code>.<br /> Consommer ces API et enregistrer <code>/orders/new_service</code> les commandes en base de données,
+                        afficher le nombre total de commandes dans le statut 'new'.<br />
+                        N'effectuer aucun traitement dans le controleur, utiliser un service. Ce service prendra en paramètre l'URL de l'API et devra traiter les commandes quelque soit le format de retour de l'API.<br />
+                        Attention, nous souhaitons par la suite pouvoir traiter d'autres types de format, par exemple un CSV. La classe du service ne devra en aucun cas être modifiée pour prendre en charge des nouveaux formats.
+                    </p>
+                </li>
+                <li>
+                    <strong>Question 5</strong> : <a href="{{ path('lengow_orders_jquery') }}">Charger des commandes en javascript <span class="uk-badge">Javascript, jQuery, Lodash</span></a>
+                    <p>
+                        Consommer l'API <code><a href="{{ path('lengow_api_orders_random') }}">/api/orders/random</a></code> en "Ajax" pour récupérer des commandes.<br />
+                        Afficher <code>/orders/jquery</code> les commandes, rendre fonctionnel le filtre en javascript.
+                    </p>
+                </li>
+                <li>
+                    <strong>Question 6</strong> : <a href="{{ path('lengow_orders_vanilla_js') }}">Charger des commandes en vanilla javascript (sans aucune librairie)<span class="uk-badge">Javascript, Vanilla, ES6</span></a>
+                    <p>
+                        Consommer l'API <code><a href="{{ path('lengow_api_orders_random') }}">/api/orders/random</a></code> en "Ajax" pour récupérer des commandes.<br />
+                        Afficher <code>/orders/vanilla_js</code> les commandes, rendre fonctionnel le filtre en javascript. Le script doit être fonctionnel sous Chrome.
+                    </p>
+                </li>
+            </ul>
+
+{% endblock %}

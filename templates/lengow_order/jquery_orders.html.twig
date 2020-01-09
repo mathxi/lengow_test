@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1 class="uk-tile uk-tile-default uk-padding-small">Charger des commandes en javascript</h1>
+    <!-- Filtre des commandes -->
+    <form>
+        <label for="order-filter">Filtre des commandes :</label>
+        <select id="order-filter">
+            <option value="">-- Filtre par statut ---</option>
+            <option value="new">new</option>
+            <option value="shipped">shipped</option>
+            <option value="canceled">canceled</option>
+        </select>
+    </form>
+    <!-- Liste des commandes -->
+    <ul id="orders"></ul>
+
+    <script type="application/javascript">
+        <!-- ici votre code -->
+    </script>
+    <!-- Template -->
+    <script id="order-template" type="text/x-lodash-template">
+        <li data-status="<%= status %>">
+            <span class="order-id" style="display: inline-block; width: 50px;"><%= id %></span>
+            <span class="order-date" style="display: inline-block; width: 250px;"><%= created_at %></span>
+            <span class="order-customer" style="display: inline-block; width: 300px;"><%= firstname %> <%= lastname %></span>
+            <span class="order-status" style="display: inline-block; width: 100px;"><%= status %></span>
+        </li>
+    </script>
+{% endblock %}

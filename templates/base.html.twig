@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Test Lengow Fullstack{% endblock %}</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.23/css/uikit.min.css" />
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.23/js/uikit.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.23/js/uikit-icons.min.js"></script>
+    </head>
+    <body>
+        <div class="uk-container">
+            <nav class="uk-margin-top uk-margin-bottom">
+                <a href="{{ path('lengow_home') }}"><img src="{{ asset('/images/logo.svg') }}" alt=""></a>
+            </nav>
+            <section class="main">
+                {% block body %}{% endblock %}
+            </section>
+        </div>
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>

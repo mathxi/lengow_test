@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Les 20 dernières nouvelles commandes{% endblock %}
+
+{% block body %}
+
+    <h1 class="uk-tile uk-tile-default uk-padding-small">Les 20 dernières nouvelles commandes</h1>
+    {% if orders|length > 0 %}
+        <table class="uk-table uk-table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date de création</th>
+                    <th>Nom du client</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.createdAt|date('r') }}</td>
+                    <td>{{ order.customer.firstname ~ ' ' ~ order.customer.lastname }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        Aucune commande en cours.
+    {% endif %}
+
+{% endblock %}

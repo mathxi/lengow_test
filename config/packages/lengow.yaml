@@ -1,0 +1,2 @@
+parameters:
+  lengow_test_host: '%env(LENGOW_TEST_HOST)%'

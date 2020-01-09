@@ -1,0 +1,47 @@
+version: '3'
+
+# Services
+services:
+
+  # PHP FPM
+  test_php:
+    image: myprod/php:7.2-dev
+    depends_on:
+      - test_db
+    volumes:
+      - .:/var/www
+
+  # Nginx
+  test_nginx:
+    image: nginx
+    depends_on:
+      - test_php
+    ports:
+      - "81:80"
+    volumes:
+      - ./docker/nginx/:/etc/nginx/conf.d/
+      - ./public:/var/www/public
+
+  # MySQL
+  test_db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_DATABASE: lengow
+      MYSQL_USER: lengow
+      MYSQL_PASSWORD: lengow
+      MYSQL_ROOT_PASSWORD: lengow
+
+  # Adminer
+  test_adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+# Network (Create network before)
+networks:
+  default:
+    external:
+      name: lengow_dev
