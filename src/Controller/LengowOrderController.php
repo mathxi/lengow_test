@@ -8,6 +8,7 @@ use App\Entity\OrderLine;
 use App\Service\OrderConsumer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpClient\HttpClient;
 
 class LengowOrderController extends AbstractController
 {
@@ -27,8 +28,7 @@ class LengowOrderController extends AbstractController
 
         $orders = $this->getDoctrine()
             ->getRepository(Order::class)
-            ->getLastNewOrders()
-        ;
+            ->getLastNewOrders();
 
         return $this->render('lengow_order/new_orders.html.twig', [
             'orders' => $orders,
@@ -53,8 +53,7 @@ class LengowOrderController extends AbstractController
 
         $orders = $this->getDoctrine()
             ->getRepository(Order::class)
-            ->getLastNewOrdersOptimized()
-        ;
+            ->getLastNewOrdersOptimized();
 
         return $this->render('lengow_order/new_orders.html.twig', [
             'orders' => $orders,
@@ -66,6 +65,7 @@ class LengowOrderController extends AbstractController
      */
     public function ordersNew()
     {
+
         //
         // Question 3 :
         //
@@ -78,14 +78,19 @@ class LengowOrderController extends AbstractController
         // Consommation de l'API
 
 
-        // Enregistrement en BDD
+        $url = 'http://localhost:8000/api/orders/new';
+
+        $curl_handle = curl_init();
+        curl_setopt($curl_handle, CURLOPT_URL, $url);
+        curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, false);
+        var_dump(curl_exec($curl_handle));
+        curl_close($curl_handle);
 
 
         // Décompte des commandes dont le statut est "new"
         $totalNewOrders = $this->getDoctrine()
             ->getRepository(Order::class)
-            ->countNewOrders()
-        ;
+            ->countNewOrders();
 
         return $this->render('lengow_order/get_new_orders.html.twig', [
             'total_new_orders' => $totalNewOrders,
@@ -117,8 +122,7 @@ class LengowOrderController extends AbstractController
         // Décompte des commandes dont le statut est "new"
         $totalNewOrders = $this->getDoctrine()
             ->getRepository(Order::class)
-            ->countNewOrders()
-        ;
+            ->countNewOrders();
 
         return $this->render('lengow_order/get_new_orders.html.twig', [
             'total_new_orders' => $totalNewOrders,

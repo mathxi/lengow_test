@@ -3,8 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Order;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Entity\Customer;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 
 /**
@@ -29,14 +30,15 @@ class OrderRepository extends ServiceEntityRepository
      */
     public function getLastNewOrders(): array
     {
+        $maxOrder = 20;
         $queryBuilder = $this->createQueryBuilder('o')
-            ->from(Order::class,'ord')
             ->where('o.status = :status')
-            ->orderBy('o.createdAt ','DESC')
-            //->setMaxResults(20)
-            ->setParameter('status', 'new');
-            $query = $queryBuilder->getQuery();
-            
+            ->setParameter('status', 'new')
+            ->setMaxResults($maxOrder)
+            ->orderBy('o.createdAt ', 'DESC');
+
+        $query = $queryBuilder->getQuery();
+
         return $query->getResult();
     }
 
@@ -50,6 +52,20 @@ class OrderRepository extends ServiceEntityRepository
      */
     public function getLastNewOrdersOptimized(): array
     {
+        $maxOrder = 20;
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->where('o.status = :status')
+            ->join('o.customer', 'c')
+            ->addSelect('c')
+            ->orderBy('o.createdAt ', 'DESC')
+            ->setMaxResults($maxOrder)
+            ->setParameter('status', 'new');
+
+
+
+        $query = $queryBuilder->getQuery();
+
+        return $query->getResult();
     }
 
     /**
@@ -62,6 +78,12 @@ class OrderRepository extends ServiceEntityRepository
      */
     public function countNewOrders(): int
     {
+        $queryBuilder = $this->createQueryBuilder('o')
+        ->select('count(o.id)')
+        ->where('o.status = :status')
+        ->setParameter('status', 'new');
+        
+        return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
     /**
