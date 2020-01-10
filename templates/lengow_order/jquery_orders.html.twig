@@ -12,6 +12,7 @@
 			<option value="canceled">canceled</option>
 		</select>
 	</form>
+
 	<!-- Liste des commandes -->
 	<ul id="orders"></ul>
 
@@ -76,11 +77,47 @@
 	<!-- Template -->
 	<script id="order-template" type="text/x-lodash-template">
 		<li data-status="<%= status %>">
-			<span class="order-id" style="display: inline-block; width: 50px;"><%= id %></span>
-			<span class="order-date" style="display: inline-block; width: 250px;"><%= created_at %></span>
-			<span class="order-customer" style="display: inline-block; width: 300px;"><%= firstname %>
-				<%= lastname %></span>
-			<span class="order-status" style="display: inline-block; width: 100px;"><%= status %></span>
+			<div class="order-id" ><%= id %></div>
+			<div class="order-date"><%= created_at %></div>
+			<div class="order-customer"><%= firstname %>
+				<%= lastname %></div>
+			<div class="order-status"><strong><%= status %></strong></div>
 		</li>
 	</script>
+<style>
+    #orders{
+        min-height: 50vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+        max-width: 90vw;
+        flex-wrap: wrap;
+    }
+	li {
+        width: 100%;
+        list-style: none;
+        border-radius: 5px;
+        box-shadow: 0px 7px 10px rgba(100, 100, 100, 0.26);
+        margin: 20px 0;
+        padding: 15px 10px;
+        justify-content: space-evenly;
+        display: flex;
+        animation: ease 0.5s forwards goin;
+	}
+    @keyframes goin{
+        0%{
+            opacity:0;
+            transform:translateY(-15px);
+        }
+        100%{
+            opacity:1;
+            transform:translateY(0);
+        }
+    }
+    li div{
+        width:20%;
+    }
+</style>
+
 {% endblock %}

@@ -108,14 +108,12 @@ class OrderRepository extends ServiceEntityRepository
         foreach ($result as $value) {
             array_push($arr, $value[1]);
         }
-
+        //empêche de faire des des where avec un filtre incorrect 
         if (in_array($filtre, $arr)) {
             $sql =  $sql . " WHERE status = ? ORDER BY RAND() LIMIT 50";
         }else{
             $sql = $sql . " ORDER BY RAND() LIMIT 50";
         }
-
-        var_dump($sql);
         $stmt = $this->getEntityManager()
             ->getConnection()
             ->executeQuery($sql, array($filtre));
