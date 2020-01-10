@@ -79,10 +79,10 @@ class OrderRepository extends ServiceEntityRepository
     public function countNewOrders(): int
     {
         $queryBuilder = $this->createQueryBuilder('o')
-        ->select('count(o.id)')
-        ->where('o.status = :status')
-        ->setParameter('status', 'new');
-        
+            ->select('count(o.id)')
+            ->where('o.status = :status')
+            ->setParameter('status', 'new');
+
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
@@ -91,19 +91,34 @@ class OrderRepository extends ServiceEntityRepository
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getRandomOrders(): array
+    public function getRandomOrders($filtre): array
     {
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->select('DISTINCT(o.status)');
+        $result = $queryBuilder->getQuery()->getResult();
+        
+        
         $sql = 'SELECT o.*, c.* 
             FROM lgw_test_order AS o
               JOIN lgw_test_orderline AS ol ON ol.order_id = o.id 
               JOIN lgw_test_customer AS c ON o.customer_id = c.id
-            ORDER BY RAND()
-            LIMIT 50
-         ';
+              ';
 
+        $arr = array();
+        foreach ($result as $value) {
+            array_push($arr, $value[1]);
+        }
+
+        if (in_array($filtre, $arr)) {
+            $sql =  $sql . " WHERE status = ? ORDER BY RAND() LIMIT 50";
+        }else{
+            $sql = $sql . " ORDER BY RAND() LIMIT 50";
+        }
+
+        var_dump($sql);
         $stmt = $this->getEntityManager()
             ->getConnection()
-            ->executeQuery($sql);
+            ->executeQuery($sql, array($filtre));
 
         return $stmt->fetchAll();
     }

@@ -2,13 +2,14 @@
 
 namespace App\Controller;
 
-use App\Entity\Customer;
-use App\Entity\Order;
 use Faker\Factory;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Entity\Order;
+use App\Entity\Customer;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class LengowApiController extends AbstractController
 {
@@ -65,12 +66,14 @@ class LengowApiController extends AbstractController
      * @Route("/api/orders/random", name="lengow_api_orders_random")
      * @return JsonResponse
      */
-    public function apiOrderRandom(): JsonResponse
+    public function apiOrderRandom(Request $request): JsonResponse
     {
+        $filtre = $request->query->get('filtre');
+        
+        
         $orders = $this->getDoctrine()
             ->getRepository(Order::class)
-            ->getRandomOrders()
-        ;
+            ->getRandomOrders($filtre);
 
         return new JsonResponse($orders);
     }

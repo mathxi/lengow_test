@@ -1,30 +1,86 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1 class="uk-tile uk-tile-default uk-padding-small">Charger des commandes en javascript</h1>
-    <!-- Filtre des commandes -->
-    <form>
-        <label for="order-filter">Filtre des commandes :</label>
-        <select id="order-filter">
-            <option value="">-- Filtre par statut ---</option>
-            <option value="new">new</option>
-            <option value="shipped">shipped</option>
-            <option value="canceled">canceled</option>
-        </select>
-    </form>
-    <!-- Liste des commandes -->
-    <ul id="orders"></ul>
+	<h1 class="uk-tile uk-tile-default uk-padding-small">Charger des commandes en javascript</h1>
+	<!-- Filtre des commandes -->
+	<form>
+		<label for="order-filter">Filtre des commandes :</label>
+		<select id="order-filter">
+			<option value="">-- Filtre par statut ---</option>
+			<option value="new">new</option>
+			<option value="shipped">shipped</option>
+			<option value="canceled">canceled</option>
+		</select>
+	</form>
+	<!-- Liste des commandes -->
+	<ul id="orders"></ul>
 
-    <script type="application/javascript">
-        <!-- ici votre code -->
-    </script>
-    <!-- Template -->
-    <script id="order-template" type="text/x-lodash-template">
-        <li data-status="<%= status %>">
-            <span class="order-id" style="display: inline-block; width: 50px;"><%= id %></span>
-            <span class="order-date" style="display: inline-block; width: 250px;"><%= created_at %></span>
-            <span class="order-customer" style="display: inline-block; width: 300px;"><%= firstname %> <%= lastname %></span>
-            <span class="order-status" style="display: inline-block; width: 100px;"><%= status %></span>
-        </li>
-    </script>
+	<script type="application/javascript">
+        //fonction d'appel api
+        function fetchOrder(){
+            //définition des variables
+            const url = 'http://localhost:8000/api/orders/random'
+            // Récupération du template
+            var commentTemplate = $("#order-template").html();
+
+            // Récupération du container d'orders
+            var commentsDiv = $("#orders");
+            // Récupération du select(filtre)
+            var select = $( "#order-filter" )
+            var selectedValue = $("#order-filter").children("option:selected").val();
+
+            commentsDiv.html("<span uk-spinner='ratio: 4.5'></span>")
+            console.log("selectedValue",selectedValue)
+                $.ajax({
+                    method: "GET",
+                    url: url,
+                    data:{'filtre':selectedValue}
+                })
+                .done(function( data ) {
+                    // Chargement du template dans lodash
+                    let templateFn = _.template(commentTemplate);
+                    let tempHtml = "";
+                    data.forEach(order => {
+                    // Définition des valeurs du template
+                        tempHtml += templateFn({
+                            'id':order.id,
+                            'created_at':order.created_at,
+                            'firstname':order.firstname,
+                            'lastname':order.lastname,
+                            'status':order.status
+                        });
+                        
+                        
+                    });
+                    // insertion du template
+                    commentsDiv.html( tempHtml );
+                    console.log( "Données récupéré: ", data );
+                });
+            }
+
+            //Appel de la fonction lors d'événements
+            $( document ).ready(function() {
+            
+                fetchOrder();
+                
+            });
+            $( "#order-filter" ).change(function() {
+                fetchOrder();
+            });
+
+
+        
+        
+
+	</script>
+	<!-- Template -->
+	<script id="order-template" type="text/x-lodash-template">
+		<li data-status="<%= status %>">
+			<span class="order-id" style="display: inline-block; width: 50px;"><%= id %></span>
+			<span class="order-date" style="display: inline-block; width: 250px;"><%= created_at %></span>
+			<span class="order-customer" style="display: inline-block; width: 300px;"><%= firstname %>
+				<%= lastname %></span>
+			<span class="order-status" style="display: inline-block; width: 100px;"><%= status %></span>
+		</li>
+	</script>
 {% endblock %}

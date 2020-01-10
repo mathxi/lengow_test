@@ -2,13 +2,15 @@
 
 namespace App\Controller;
 
-use App\Entity\Customer;
 use App\Entity\Order;
+use App\Entity\Customer;
 use App\Entity\OrderLine;
 use App\Service\OrderConsumer;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Service\Client;
 
 class LengowOrderController extends AbstractController
 {
@@ -76,16 +78,23 @@ class LengowOrderController extends AbstractController
         //
 
         // Consommation de l'API
-
-
         $url = 'http://localhost:8000/api/orders/new';
+        $url2 = 'https://pokeapi.co/api/v2/pokemon/ditto/';
+ 
 
-        $curl_handle = curl_init();
-        curl_setopt($curl_handle, CURLOPT_URL, $url);
-        curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, false);
-        var_dump(curl_exec($curl_handle));
-        curl_close($curl_handle);
-
+        // Fonctionne avec un *.php externe à symfony
+        // $curl_handle = curl_init();
+        // curl_setopt($curl_handle, CURLOPT_URL, $url);
+        // curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, false);
+        // curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 1);
+        // curl_setopt($curl_handle, CURLOPT_TIMEOUT, 10); 
+        // curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER,1);
+        // var_dump(curl_exec($curl_handle));
+        // curl_close($curl_handle);
+        $response = $this->forward($url);
+        echo '<pre>';
+        var_dump($response);
+        echo '</pre>';
 
         // Décompte des commandes dont le statut est "new"
         $totalNewOrders = $this->getDoctrine()
