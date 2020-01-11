@@ -2,29 +2,124 @@
 
 {% block body %}
     <h1 class="uk-tile uk-tile-default uk-padding-small">Charger des commandes en vanilla JS</h1>
-    <!-- Filtre des commandes -->
-    <form>
-        <label for="order-filter">Filtre des commandes :</label>
-        <select id="order-filter">
-            <option value="">-- Filtre par statut ---</option>
-            <option value="new">new</option>
-            <option value="shipped">shipped</option>
-            <option value="canceled">canceled</option>
-        </select>
-    </form>
-    <!-- Liste des commandes -->
-    <ul id="orders"></ul>
+    <div uk-filter="target: #orders">
+
+        <!-- Filtre des commandes -->
+        <!-- Database request -->
+        <form>
+            <label for="order-filter">Filtre des commandes :</label>
+            <select onchange="fetchOrder()" id="order-filter">
+                <option value="">-- Tous les status ---</option>
+                <option value="new">new</option>
+                <option value="shipped">shipped</option>
+                <option value="canceled">canceled</option>
+            </select>
+        </form>
+         <!-- Only js -->
+        <ul class="uk-subnav uk-subnav-pill">
+            <li class="uk-active" uk-filter-control><a href="#">Tous les status</a></li>
+            <li uk-filter-control="[data-status='new']"><a href="#">new</a></li>
+            <li uk-filter-control="[data-status='shipped']"><a href="#">shipped</a></li>
+            <li uk-filter-control="[data-status='canceled']"><a href="#">canceled</a></li>
+        </ul>
+
+
+        <!-- Liste des commandes -->
+        <ul id="orders"></ul>
+    </div>
 
     <script type="application/javascript">
-        <!-- ici votre code -->
+        var select = document.getElementById("order-filter");
+        //fonction d'appel api
+        function fetchOrder(){
+
+            //définition des variables
+            const url = 'http://localhost:8000/api/orders/random'
+            // Récupération du template
+            var orderTemplate = document.getElementById("order-line"); 
+
+            // Récupération du container d'orders
+            var orderDiv = document.getElementById("orders"); 
+
+            // Récupération du select(filtre)
+            var selectedValue = select.options[select.selectedIndex].value
+
+            //attente de l'appel en ajax
+            orderDiv.innerHTML= "<span uk-spinner='ratio: 4.5'></span>"
+
+                $.ajax({
+                    method: "GET",
+                    url: url,
+                    data:{'filtre':selectedValue}
+                })
+                .done(function( data ) {
+                    orderDiv.innerHTML ='';
+                    //Boucle sur les données de l'api
+                    data.forEach(order => {
+                        // Définition des valeurs du template
+                        orderTemplate.content.querySelector('li').setAttribute('data-status',order.status)
+                        console.log(order.status)
+                        orderTemplate.content.querySelector('.order-id').textContent = order.id
+                        orderTemplate.content.querySelector('.order-date').textContent = order.created_at
+                        orderTemplate.content.querySelector('.order-customer').textContent = order.firstname + order.lastname
+                        orderTemplate.content.querySelector('.order-status').textContent = order.status
+                        let clone = document.importNode(orderTemplate.content, true);
+                        // insertion du template
+                        orderDiv.appendChild(clone);
+                    });
+                    
+                });
+                
+            }
+
+            //Appel de la fonction lors d'événements
+            window.addEventListener('DOMContentLoaded', function() {
+                fetchOrder();
+            });
+
     </script>
     <!-- Template -->
     <template id="order-line">
-        <li data-status="">
+        <li>
             <span class="order-id" style="display: inline-block; width: 50px;"></span>
             <span class="order-date" style="display: inline-block; width: 250px;"></span>
             <span class="order-customer" style="display: inline-block; width: 300px;"></span>
             <span class="order-status" style="display: inline-block; width: 100px;"></span>
         </li>
     </template>
+    <style>
+    #orders{
+        min-height: 50vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+        max-width: 90vw;
+        flex-wrap: wrap;
+    }
+	#orders li {
+        width: 100%;
+        list-style: none;
+        border-radius: 5px;
+        box-shadow: 0px 7px 10px rgba(100, 100, 100, 0.26);
+        margin: 20px 0;
+        padding: 15px 10px;
+        justify-content: space-evenly;
+        display: flex;
+        /*animation: ease 0.5s forwards goin;*/
+	}
+    @keyframes goin{
+        0%{
+            opacity:0;
+            transform:translateY(-15px);
+        }
+        100%{
+            opacity:1;
+            transform:translateY(0);
+        }
+    }
+    li div{
+        width:20%;
+    }
+</style>
 {% endblock %}

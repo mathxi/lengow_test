@@ -1,11 +1,43 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Consommer une API et enregistrer les résultats en base de données{% endblock %}
+{% block title %}Consommer une API et enregistrer les résultats en base de données
+{% endblock %}
 
 {% block body %}
 
-    <h1 class="uk-tile uk-tile-default uk-padding-small">Consommer une API et enregistrer les résultats en base de données</h1>
+	<h1 class="uk-tile uk-tile-default uk-padding-small">Consommer une API et enregistrer les résultats en base de données</h1>
+	<div class="container__answer">
+		<div class="uk-card uk-card-default uk-card-body uk-width-1-2@m">
+			<h2>Comamndes 'new' avant ajout :</h2>
+			<h3>{{ total_old_new_orders }}</h3>
+		</div>
+		<div class="uk-card uk-card-default uk-card-body">
+			<h2>Comamndes 'new' après ajout :</h2>
+			<h3>{{ total_new_new_orders }}</h3>
+		</div>
+	</div>
 
-    <p>Total des commandes dont le statut est 'new' : {{ total_new_orders }}</p>
+	<style>
+		.container__answer {
 
+			display: flex;
+			justify-content: space-evenly;
+			align-items: center;
+			text-align: center;
+
+		}
+		.container__answer h2 {
+			font-weight: 100;
+		}
+		.container__answer h3 {
+			font-weight: 600;
+		}
+		.container__answer div {
+			width: 45%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+		}
+	</style>
 {% endblock %}

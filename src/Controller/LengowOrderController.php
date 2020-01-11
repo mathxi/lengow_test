@@ -2,15 +2,17 @@
 
 namespace App\Controller;
 
+use Faker\Factory;
 use App\Entity\Order;
+use App\Service\Client;
 use App\Entity\Customer;
 use App\Entity\OrderLine;
 use App\Service\OrderConsumer;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use App\Service\Client;
 
 class LengowOrderController extends AbstractController
 {
@@ -78,31 +80,56 @@ class LengowOrderController extends AbstractController
         //
 
         // Consommation de l'API
-        $url = 'http://localhost:8000/api/orders/new';
-        $url2 = 'https://pokeapi.co/api/v2/pokemon/ditto/';
- 
+        $url = 'http://localhost:8000/api/orders/new'; // ne marche pas mais marche à partir d'un *.php externe à symfony
+        $url2 = 'https://pokeapi.co/api/v2/pokemon/ditto/'; // test avec une 2ème api  --> fonctionnel
+        /*
+         $curl_handle = curl_init();
+         curl_setopt($curl_handle, CURLOPT_URL, $url);
+         curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, false);
+         curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 1);
+         curl_setopt($curl_handle, CURLOPT_TIMEOUT, 10); 
+         curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER,1);
+         var_dump(curl_exec($curl_handle));
+         curl_close($curl_handle);
+        */
 
-        // Fonctionne avec un *.php externe à symfony
-        // $curl_handle = curl_init();
-        // curl_setopt($curl_handle, CURLOPT_URL, $url);
-        // curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, false);
-        // curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 1);
-        // curl_setopt($curl_handle, CURLOPT_TIMEOUT, 10); 
-        // curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER,1);
-        // var_dump(curl_exec($curl_handle));
-        // curl_close($curl_handle);
-        $response = $this->forward($url);
-        echo '<pre>';
-        var_dump($response);
-        echo '</pre>';
 
-        // Décompte des commandes dont le statut est "new"
-        $totalNewOrders = $this->getDoctrine()
+        // Décompte des commandes dont le statut est "new" avant insertion
+        $totalOldNewOrders = $this->getDoctrine()
             ->getRepository(Order::class)
             ->countNewOrders();
 
+        $newOrders = self::apiOrdersNew();
+
+
+        $entityManager = $this->getDoctrine()->getManager();
+        foreach ($newOrders as $newOrder) {
+            $order = new Order();
+            foreach ($newOrder['orderlines'] as $tempOrderLine) {
+                $orderLines = new OrderLine();
+                $orderLines->setProduct($tempOrderLine['product']);
+                $orderLines->setQuantity($tempOrderLine['quantity']);
+                $orderLines->setPrice($tempOrderLine['price']);
+                $order->addOrderLine($orderLines);
+            }
+            // Order
+            $order->setCreatedAt($newOrder['date']);
+            $order->setCustomer($entityManager->getRepository(Customer::class)->find($newOrder['customer_id']));
+            $order->setStatus('new');
+            //préparation de la query
+            //$entityManager->persist($order);
+        }
+        //insertion en base des orders
+        //$entityManager->flush();
+        // Décompte des commandes dont le statut est "new" après insertion
+        $totalNewNewOrders = $this->getDoctrine()
+            ->getRepository(Order::class)
+            ->countNewOrders();
+
+
         return $this->render('lengow_order/get_new_orders.html.twig', [
-            'total_new_orders' => $totalNewOrders,
+            'total_old_new_orders' => $totalOldNewOrders,
+            'total_new_new_orders' => $totalNewNewOrders
         ]);
     }
 
@@ -170,5 +197,47 @@ class LengowOrderController extends AbstractController
         //
 
         return $this->render('lengow_order/vanilla_js_orders.html.twig');
+    }
+
+
+
+
+
+
+
+
+    //Simultation de l'appel api
+    private function apiOrdersNew()
+    {
+        $orders = [];
+        $customers = $this->getDoctrine()
+            ->getRepository(Customer::class)
+            ->findAll();
+
+        $faker = Factory::create();
+
+        // On génère 20 nouvelles commandes
+        for ($i = 0; $i < 20; $i++) {
+
+            // Order lines
+            $orderLines = [];
+            $maxLines = rand(1, 3);
+            for ($j = 0; $j < $maxLines; $j++) {
+                $orderline['product'] = $faker->ean13;
+                $orderline['quantity'] = rand(1, 3);
+                $orderline['price'] = $faker->randomFloat(2, 1, 100);
+                $orderLines[] = $orderline;
+            }
+
+            // Order
+            $order['date']  = new \DateTime();
+            $order['customer_id'] = $customers[rand(0, 99)]->getId();
+            $order['orderlines'] = $orderLines; // orderlines != orderLines
+
+            $orders[] = $order;
+        }
+
+
+        return $orders;
     }
 }

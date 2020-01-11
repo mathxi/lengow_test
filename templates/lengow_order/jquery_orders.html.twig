@@ -2,35 +2,46 @@
 
 {% block body %}
 	<h1 class="uk-tile uk-tile-default uk-padding-small">Charger des commandes en javascript</h1>
-	<!-- Filtre des commandes -->
-	<form>
-		<label for="order-filter">Filtre des commandes :</label>
-		<select id="order-filter">
-			<option value="">-- Filtre par statut ---</option>
-			<option value="new">new</option>
-			<option value="shipped">shipped</option>
-			<option value="canceled">canceled</option>
-		</select>
-	</form>
+    <div uk-filter="target: #orders">
 
-	<!-- Liste des commandes -->
-	<ul id="orders"></ul>
+        <!-- Filtre des commandes -->
+        <!-- Database request -->
+        <form>
+            <label for="order-filter">Filtre des commandes :</label>
+            <select id="order-filter">
+                <option value="">-- Tous les status ---</option>
+                <option value="new">new</option>
+                <option value="shipped">shipped</option>
+                <option value="canceled">canceled</option>
+            </select>
+        </form>
+         <!-- Only js -->
+        <ul class="uk-subnav uk-subnav-pill">
+            <li class="uk-active" uk-filter-control><a href="#">Tous les status</a></li>
+            <li uk-filter-control="[data-status='new']"><a href="#">new</a></li>
+            <li uk-filter-control="[data-status='shipped']"><a href="#">shipped</a></li>
+            <li uk-filter-control="[data-status='canceled']"><a href="#">canceled</a></li>
+        </ul>
 
+
+        <!-- Liste des commandes -->
+        <ul id="orders"></ul>
+    </div>
 	<script type="application/javascript">
         //fonction d'appel api
         function fetchOrder(){
             //définition des variables
             const url = 'http://localhost:8000/api/orders/random'
             // Récupération du template
-            var commentTemplate = $("#order-template").html();
+            var orderTemplate = $("#order-template").html();
 
             // Récupération du container d'orders
-            var commentsDiv = $("#orders");
+            var orderContainer = $("#orders");
             // Récupération du select(filtre)
             var select = $( "#order-filter" )
             var selectedValue = $("#order-filter").children("option:selected").val();
 
-            commentsDiv.html("<span uk-spinner='ratio: 4.5'></span>")
+            orderContainer.html("<span uk-spinner='ratio: 4.5'></span>")
             console.log("selectedValue",selectedValue)
                 $.ajax({
                     method: "GET",
@@ -39,7 +50,7 @@
                 })
                 .done(function( data ) {
                     // Chargement du template dans lodash
-                    let templateFn = _.template(commentTemplate);
+                    let templateFn = _.template(orderTemplate);
                     let tempHtml = "";
                     data.forEach(order => {
                     // Définition des valeurs du template
@@ -54,16 +65,14 @@
                         
                     });
                     // insertion du template
-                    commentsDiv.html( tempHtml );
+                    orderContainer.html( tempHtml );
                     console.log( "Données récupéré: ", data );
                 });
             }
 
             //Appel de la fonction lors d'événements
             $( document ).ready(function() {
-            
                 fetchOrder();
-                
             });
             $( "#order-filter" ).change(function() {
                 fetchOrder();
@@ -94,7 +103,7 @@
         max-width: 90vw;
         flex-wrap: wrap;
     }
-	li {
+	#orders li {
         width: 100%;
         list-style: none;
         border-radius: 5px;
@@ -103,7 +112,7 @@
         padding: 15px 10px;
         justify-content: space-evenly;
         display: flex;
-        animation: ease 0.5s forwards goin;
+        /*animation: ease 0.5s forwards goin;*/
 	}
     @keyframes goin{
         0%{
