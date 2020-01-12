@@ -80,7 +80,7 @@ class LengowOrderController extends AbstractController
         //
 
         // Consommation de l'API
-        $url = 'http://localhost:8000/api/orders/new'; // ne marche pas mais marche à partir d'un *.php externe à symfony
+        $url = 'http://localhost:8000/api/orders/new'; // ne marche pas MAIS marche à partir d'un *.php externe à symfony
         $url2 = 'https://pokeapi.co/api/v2/pokemon/ditto/'; // test avec une 2ème api  --> fonctionnel
         /*
          $curl_handle = curl_init();

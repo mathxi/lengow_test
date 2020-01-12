@@ -16,30 +16,46 @@
             </select>
         </form>
          <!-- Only js -->
-        <ul class="uk-subnav uk-subnav-pill">
-            <li class="uk-active" uk-filter-control><a href="#">Tous les status</a></li>
-            <li uk-filter-control="[data-status='new']"><a href="#">new</a></li>
-            <li uk-filter-control="[data-status='shipped']"><a href="#">shipped</a></li>
-            <li uk-filter-control="[data-status='canceled']"><a href="#">canceled</a></li>
-        </ul>
-
-
+        <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+            <label><input class="uk-checkbox filterCheckbox" type="checkbox"  value="new"> new</label>
+            <label><input class="uk-checkbox filterCheckbox" type="checkbox"  value="shipped"> shipped</label>
+            <label><input class="uk-checkbox filterCheckbox" type="checkbox"  value="canceled"> canceled</label>
+        </div>   
+        <h3>Nombre de commandes affiché: <strong id="nbCommandes"></strong></h3>
         <!-- Liste des commandes -->
         <ul id="orders"></ul>
     </div>
 
+    
+    <!-- Template -->
+    <template id="order-line">
+        <li class="order showOrder">
+            <span class="order-id" style="display: inline-block; width: 50px;"></span>
+            <span class="order-date" style="display: inline-block; width: 250px;"></span>
+            <span class="order-customer" style="display: inline-block; width: 300px;"></span>
+            <span class="order-status" style="display: inline-block; width: 100px;"></span>
+        </li>
+    </template>
+
     <script type="application/javascript">
+        var checkboxs = document.getElementsByClassName("filterCheckbox");
+        Array.prototype.forEach.call(checkboxs, checkbox =>{ 
+            checkbox.addEventListener('change', (event) => {
+                filterOrder()
+            })
+        })
+        var nbCommandes = document.getElementById("nbCommandes");
+
         var select = document.getElementById("order-filter");
+        // Récupération du template
+        var orderTemplate = document.getElementById("order-line"); 
+        // Récupération du container d'orders
+        var orderDiv = document.getElementById("orders"); 
         //fonction d'appel api
         function fetchOrder(){
 
             //définition des variables
             const url = 'http://localhost:8000/api/orders/random'
-            // Récupération du template
-            var orderTemplate = document.getElementById("order-line"); 
-
-            // Récupération du container d'orders
-            var orderDiv = document.getElementById("orders"); 
 
             // Récupération du select(filtre)
             var selectedValue = select.options[select.selectedIndex].value
@@ -52,24 +68,48 @@
                     url: url,
                     data:{'filtre':selectedValue}
                 })
-                .done(function( data ) {
-                    orderDiv.innerHTML ='';
-                    //Boucle sur les données de l'api
-                    data.forEach(order => {
-                        // Définition des valeurs du template
-                        orderTemplate.content.querySelector('li').setAttribute('data-status',order.status)
-                        console.log(order.status)
-                        orderTemplate.content.querySelector('.order-id').textContent = order.id
-                        orderTemplate.content.querySelector('.order-date').textContent = order.created_at
-                        orderTemplate.content.querySelector('.order-customer').textContent = order.firstname + order.lastname
-                        orderTemplate.content.querySelector('.order-status').textContent = order.status
-                        let clone = document.importNode(orderTemplate.content, true);
-                        // insertion du template
-                        orderDiv.appendChild(clone);
-                    });
-                    
+                .done(function(newOrders ) {
+                    insertOrderInHTML(newOrders)
+                    filterOrder()
                 });
                 
+            }
+            //récupère la liste d'order dans l'html puis actualise l'affichage en fonction du/des filtres
+            function filterOrder(){
+                var filter = []
+                
+                Array.prototype.forEach.call(checkboxs, checkbox =>{ if(checkbox.checked) filter.push(checkbox.value);})
+                console.log("filter",filter)
+                orders = document.getElementsByClassName("order");
+                var i = 0;
+                Array.prototype.forEach.call(orders, order =>{
+                    if(filter.includes(order.getAttribute("data-status")) || filter.length === 0){ // regarde si le data-status est contenu dans l'array filter
+                        order.classList.replace("hiddenOrder","showOrder")
+                        i++
+                    }else{
+                        order.classList.replace("showOrder","hiddenOrder")
+                    }
+                });
+                nbCommandes.innerHTML = i
+            }
+            //Fonction qui prend en paramètre une liste d'order
+            //efface le contenu HTML et le remplace par la nouvelle liste
+            function insertOrderInHTML(orders){
+                orderDiv.innerHTML ='';
+                //Boucle sur les orders
+                orders.forEach(order => {
+
+                    // Définition des valeurs du template
+                    orderTemplate.content.querySelector('li').setAttribute('data-status',order.status)
+                    orderTemplate.content.querySelector('.order-id').textContent = order.id
+                    orderTemplate.content.querySelector('.order-date').textContent = order.created_at
+                    orderTemplate.content.querySelector('.order-customer').textContent = order.firstname + order.lastname
+                    orderTemplate.content.querySelector('.order-status').textContent = order.status
+                    let clone = document.importNode(orderTemplate.content, true);
+                    // insertion du template
+                    orderDiv.appendChild(clone);
+                });
+
             }
 
             //Appel de la fonction lors d'événements
@@ -78,16 +118,41 @@
             });
 
     </script>
-    <!-- Template -->
-    <template id="order-line">
-        <li>
-            <span class="order-id" style="display: inline-block; width: 50px;"></span>
-            <span class="order-date" style="display: inline-block; width: 250px;"></span>
-            <span class="order-customer" style="display: inline-block; width: 300px;"></span>
-            <span class="order-status" style="display: inline-block; width: 100px;"></span>
-        </li>
-    </template>
+
+
+
+
+    
     <style>
+    .showOrder{
+        animation:goIn 0.5s ease forwards; 
+    }
+    .hiddenOrder{
+        animation:goOut 0.5s ease; 
+        display:none;
+    }
+    @keyframes goOut{
+        0%{
+            transform:translateX(0px);
+            opacity:1;
+            display:flex;
+        }
+        100%{
+            opacity:0;
+            transform:translateX(20px);
+        }
+    }    
+    @keyframes goIn{
+        0%{
+            transform:translateX(-20px);
+            display:flex;
+            opacity:0;
+        }
+        100%{
+            opacity:1;
+            transform:translateX(0px);
+        }
+    }
     #orders{
         min-height: 50vh;
         display: flex;
@@ -105,19 +170,8 @@
         margin: 20px 0;
         padding: 15px 10px;
         justify-content: space-evenly;
-        display: flex;
         /*animation: ease 0.5s forwards goin;*/
 	}
-    @keyframes goin{
-        0%{
-            opacity:0;
-            transform:translateY(-15px);
-        }
-        100%{
-            opacity:1;
-            transform:translateY(0);
-        }
-    }
     li div{
         width:20%;
     }
