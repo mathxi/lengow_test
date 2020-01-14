@@ -103,13 +103,14 @@ class OrderRepository extends ServiceEntityRepository
               JOIN lgw_test_orderline AS ol ON ol.order_id = o.id 
               JOIN lgw_test_customer AS c ON o.customer_id = c.id
               ';
-
+        
         $arr = array();
         foreach ($result as $value) {
             array_push($arr, $value[1]);
         }
         //empêche de faire des des where avec un filtre incorrect 
-        if (in_array($filtre, $arr)) {
+        //$array === ["new","shipped","canceld"]
+        if (in_array($filtre, $arr)) {//si le filtre passé est dans les status possible, alors on modifie la query
             $sql =  $sql . " WHERE status = ? ORDER BY RAND() LIMIT 50";
         }else{
             $sql = $sql . " ORDER BY RAND() LIMIT 50";
